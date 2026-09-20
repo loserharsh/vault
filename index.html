@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Vault</title>
+  
+  <!-- Mobile PWA & App Capabilities -->
+  <meta name="application-name" content="Vault" />
+  <meta name="apple-mobile-web-app-title" content="Vault" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#F5F5F2" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+
+  <!-- Modern Geometric Typography -->
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Modular Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/mobile-app.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/screens.css" />
+</head>
+<body>
+
+  <!-- App Stage (Centers on Desktop, Full Bleed on Mobile Phones) -->
+  <main class="mobile-app-viewport">
+    
+    <div class="mobile-app-shell">
+
+      <!-- Scrollable Mobile Screen Content Container -->
+      <div class="app-screen-scroller">
+        
+        <!-- Tab 1: Home / Dashboard -->
+        <section class="app-screen active" id="screen-home" aria-label="Home Dashboard"></section>
+
+        <!-- Tab 2: Analytics & Hatched Bar Chart -->
+        <section class="app-screen" id="screen-analytics" aria-label="Analytics & Breakdown"></section>
+
+        <!-- Tab 3: Activity & Full Transaction Feed -->
+        <section class="app-screen" id="screen-activity" aria-label="Activity History"></section>
+
+        <!-- Dedicated Page: Deposit Funds with ID -->
+        <section class="app-screen" id="screen-deposit" aria-label="Deposit Funds"></section>
+
+      </div>
+
+      <!-- Off-Canvas Sidebar Navigation Drawer -->
+      <div class="drawer-backdrop" id="drawer-backdrop"></div>
+      <aside class="mobile-side-drawer" id="mobile-side-drawer" aria-label="Sidebar Menu"></aside>
+
+      <!-- Native Mobile Bottom Navigation Bar -->
+      <nav class="mobile-bottom-nav" aria-label="App Navigation">
+        <button class="nav-tab-item active" data-tab="home" aria-label="Home">
+          <div class="nav-tab-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+          </div>
+          <span class="nav-tab-label">Home</span>
+        </button>
+
+        <button class="nav-tab-item" data-tab="analytics" aria-label="Analytics">
+          <div class="nav-tab-icon">
+            <svg viewBox="0 0 24 24">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          </div>
+          <span class="nav-tab-label">Analytics</span>
+        </button>
+
+        <button class="nav-tab-item" data-tab="deposit" aria-label="Deposit">
+          <div class="nav-tab-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3v12m0 0l-4-4m4 4l4-4" />
+              <path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
+            </svg>
+          </div>
+          <span class="nav-tab-label">Deposit</span>
+        </button>
+
+        <button class="nav-tab-item" data-tab="activity" aria-label="Activity">
+          <div class="nav-tab-icon">
+            <svg viewBox="0 0 24 24">
+              <line x1="8" y1="6" x2="21" y2="6" />
+              <line x1="8" y1="12" x2="21" y2="12" />
+              <line x1="8" y1="18" x2="21" y2="18" />
+              <line x1="3" y1="6" x2="3.01" y2="6" />
+              <line x1="3" y1="12" x2="3.01" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" />
+            </svg>
+          </div>
+          <span class="nav-tab-label">Activity</span>
+        </button>
+      </nav>
+
+    </div>
+
+  </main>
+
+  <!-- Modular JavaScript Entry Point -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

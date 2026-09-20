@@ -1,0 +1,77 @@
+:root {
+  /* Core Brand Colors */
+  --color-primary: #F04E23;
+  --color-primary-hover: #D63C13;
+  --color-primary-light: #FFECE7;
+  
+  --color-secondary: #9DCAFF;
+  --color-secondary-soft: #E8F2FF;
+  --color-secondary-dark: #6CAEFF;
+
+  --color-dark: #121316;
+  --color-dark-soft: #1E2024;
+  --color-slate: #777781;
+  --color-slate-light: #A8A8B0;
+  --color-slate-faint: #C8C8CE;
+
+  --color-bg: #F5F5F2;
+  --color-bg-alt: #ECECE8;
+  --color-card: #FFFFFF;
+  --color-card-muted: #F8F8F6;
+  --color-border: #E5E5E0;
+  --color-border-light: #F0F0EC;
+
+  --color-success: #2CB353;
+  --color-success-soft: #E9F8EE;
+  
+  /* Stage / Desktop Preview Background */
+  --stage-bg: #E1E3DF;
+  --stage-device-bezel: #1F2024;
+  --stage-device-border: #383A42;
+
+  /* Typography */
+  --font-display: 'Clash Display', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Radii */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 9999px;
+
+  /* Elevation / Shadows */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.09);
+  --shadow-device: 0 35px 70px -15px rgba(25, 27, 34, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.08);
+
+  /* Transitions */
+  --transition-fast: 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-normal: 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Hatch Pattern Helper */
+  --hatch-dark: repeating-linear-gradient(
+    45deg,
+    #121316,
+    #121316 1.5px,
+    transparent 1.5px,
+    transparent 5px
+  );
+  --hatch-subtle: repeating-linear-gradient(
+    45deg,
+    rgba(18, 19, 22, 0.35),
+    rgba(18, 19, 22, 0.35) 1.2px,
+    transparent 1.2px,
+    transparent 5px
+  );
+  --hatch-white: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.4) 1.5px,
+    transparent 1.5px,
+    transparent 5.5px
+  );
+}

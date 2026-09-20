@@ -1,0 +1,320 @@
+/* Presentation Stage & Mobile Frame Container */
+
+/* Top Presentation Bar */
+.presentation-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: rgba(245, 245, 242, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.brand-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  width: 24px;
+  height: 24px;
+  background: var(--color-primary);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--hatch-white);
+  opacity: 0.35;
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+.brand-badge {
+  font-size: 11px;
+  background: rgba(18, 19, 22, 0.08);
+  color: var(--color-dark);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.presentation-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 19, 22, 0.05);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+}
+
+.nav-view-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-slate);
+  transition: var(--transition-fast);
+}
+
+.nav-view-btn:hover {
+  color: var(--color-dark);
+}
+
+.nav-view-btn.active {
+  background: #FFFFFF;
+  color: var(--color-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.presentation-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-pill-btn {
+  padding: 6px 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+
+.action-pill-btn:hover {
+  background: #F0F0ED;
+  transform: translateY(-1px);
+}
+
+/* Stage Workspace */
+.app-stage {
+  min-height: calc(100vh - 57px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  transition: var(--transition-normal);
+  perspective: 1200px;
+}
+
+/* Device View Container */
+.devices-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  max-width: 100%;
+  transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Single Device Shell */
+.phone-mockup {
+  position: relative;
+  width: 380px;
+  height: 790px;
+  background: var(--color-bg);
+  border-radius: 50px;
+  box-shadow: var(--shadow-device);
+  border: 11px solid var(--stage-device-bezel);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+  flex-shrink: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+/* Dynamic Island & Notch */
+.dynamic-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 115px;
+  height: 30px;
+  background: #000000;
+  border-radius: var(--radius-pill);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.sensor-lens {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #111420;
+  position: relative;
+  margin-left: auto;
+}
+
+.sensor-lens::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 3px;
+  height: 3px;
+  background: rgba(85, 115, 255, 0.45);
+  border-radius: 50%;
+}
+
+/* Mobile Status Bar */
+.phone-status-bar {
+  position: relative;
+  z-index: 400;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 26px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-dark);
+}
+
+.status-time {
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 700;
+  padding-left: 4px;
+}
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.status-icons svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Screen Content Scrollable Area */
+.phone-screen-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  padding: 10px 20px 24px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE */
+}
+
+.phone-screen-content::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Home Bar Indicator */
+.phone-home-indicator {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.home-bar {
+  width: 130px;
+  height: 4.5px;
+  background: var(--color-dark);
+  border-radius: var(--radius-pill);
+  opacity: 0.85;
+}
+
+/* Trio Gallery View Modes */
+.devices-wrapper.trio-view {
+  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.devices-wrapper.trio-view .phone-mockup {
+  transform: scale(0.92);
+  margin: -15px 0;
+}
+
+.devices-wrapper.trio-view .phone-mockup:hover {
+  transform: scale(0.95) translateY(-6px);
+  box-shadow: 0 40px 80px -10px rgba(20, 22, 28, 0.4);
+}
+
+/* Single View Mode Transitions */
+.devices-wrapper.single-view .phone-mockup {
+  display: none;
+}
+
+.devices-wrapper.single-view .phone-mockup.active-screen {
+  display: flex;
+  animation: screenPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes screenPop {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 820px) {
+  .phone-mockup {
+    width: 100%;
+    max-width: 380px;
+    height: 800px;
+  }
+  
+  .presentation-bar {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .devices-wrapper.trio-view {
+    flex-direction: column;
+  }
+}
