@@ -4,3 +4,8 @@ scratch/
 # Operating System Files
 .DS_Store
 Thumbs.db
+
+# Private Local Documentation
+book.md
+book*
+
