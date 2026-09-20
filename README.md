@@ -22,12 +22,12 @@
 
 ## 💡 About The Project
 
-**Vault** is a lightweight, privacy-first personal finance tracker designed with a stark, modern, high-contrast fintech aesthetic. 
+**Vault** is a lightweight, client-side personal finance tracker designed with a stark, modern, high-contrast fintech aesthetic. 
 
-Most modern finance apps are bloated with heavy frameworks, tracking cookies, and mandatory sign-ups. **Vault** takes the opposite approach:
+Many finance web applications rely on complex frameworks, heavy bundles, or remote databases for basic tracking. **Vault** demonstrates a minimalist, native web approach:
 - **Zero build steps**: No Webpack, Vite, Babel, or npm installs required to run.
 - **Zero frameworks**: Built entirely using native HTML5, CSS3, and modern modular ES6 JavaScript.
-- **Privacy-first**: 100% client-side. Your financial ledger never leaves your browser's `localStorage`.
+- **Local persistence**: Stores data directly in the browser's `localStorage` for instant load times and offline accessibility.
 - **Installable PWA**: Works like a native mobile app on iOS and Android with anchored navigation and smooth touch controls.
 - **Playful Character**: Comes preloaded with One Piece-inspired minimalist chibi avatars and Grand Line Berries (`฿`) as the default currency (with full multi-currency switching).
 
@@ -60,8 +60,8 @@ Every user is assigned a unique Vault ID (e.g. `VLT-7492-AX`). Test out peer tra
 ### 📊 Real-Time Analytics & Hatched Spline Charts
 Custom HTML5 Canvas-powered interactive spending splines with timeframe selectors (*This week, This month, 3 months, 6 months*) and category breakdowns with visual progress bars.
 
-### 🔒 Zero-Risk Ledger with PIN Protection
-Want to start fresh? A built-in **Reset Vault to 0.00** feature requires you to type your exact username to confirm, preventing accidental data wipes.
+### 🔒 PIN-Protected Vault Reset
+Need a clean slate? A built-in **Reset Vault to 0.00** action requires you to type your exact username to confirm, preventing accidental resets during testing or daily use.
 
 ---
 
