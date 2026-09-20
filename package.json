@@ -1,0 +1,19 @@
+{
+  "name": "vault",
+  "version": "1.0.0",
+  "description": "Vanilla HTML, CSS, and JS implementation recreating the modern high-contrast fintech design language",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "fintech",
+    "vanilla-js",
+    "design-system",
+    "html5",
+    "css3"
+  ],
+  "author": "",
+  "license": "MIT"
+}
