@@ -27,6 +27,55 @@
   color: var(--color-dark);
 }
 
+.dashboard-balance-amount.is-negative {
+  color: var(--color-primary);
+}
+
+.dashboard-submetrics-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-slate);
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+
+.submetric-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.submetric-item strong {
+  color: var(--color-dark);
+  font-weight: 700;
+}
+
+.submetric-item.income strong {
+  color: #1F9D46;
+}
+
+.submetric-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.submetric-dot.green {
+  background: var(--color-success);
+}
+
+.submetric-dot.orange {
+  background: var(--color-primary);
+}
+
+.submetric-divider {
+  color: var(--color-slate-faint);
+}
+
+
 /* ========================================================
    SCREEN 2: TRANSACTIONS & ANALYTICS
    ======================================================== */
@@ -136,24 +185,25 @@
 }
 
 .segment-hatch-cap {
-  height: 16px;
+  height: 18px;
   background: var(--hatch-dark);
   border-radius: 4px 4px 0 0;
+  opacity: 0.95;
 }
 
 .segment-blue {
   height: 28px;
-  background: var(--color-secondary);
+  background: #7FB3FF;
 }
 
 .segment-green {
-  height: 22px;
+  height: 24px;
   background: #54B435;
 }
 
 .segment-orange {
   height: 48px;
-  background: var(--color-primary);
+  background: #F04E23;
 }
 
 .bar-day-label {

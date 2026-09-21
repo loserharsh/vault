@@ -341,6 +341,9 @@ class FinanceStore {
       amount: Math.abs(parseFloat(txData.amount) || 0),
       date: txData.date || getIsoDate(0),
       notes: txData.notes?.trim() || "",
+      isRecurring: Boolean(txData.isRecurring),
+      billingCycle: txData.billingCycle || "monthly",
+      receiptPhoto: txData.receiptPhoto || "",
     };
 
     this.data.transactions.unshift(newTx);
@@ -362,6 +365,9 @@ class FinanceStore {
       ...updatedFields,
       amount: updatedFields.amount !== undefined ? Math.abs(parseFloat(updatedFields.amount) || 0) : existing.amount,
       title: updatedFields.title !== undefined ? updatedFields.title.trim() : existing.title,
+      isRecurring: updatedFields.isRecurring !== undefined ? Boolean(updatedFields.isRecurring) : existing.isRecurring,
+      billingCycle: updatedFields.billingCycle || existing.billingCycle || "monthly",
+      receiptPhoto: updatedFields.receiptPhoto !== undefined ? updatedFields.receiptPhoto : (existing.receiptPhoto || ""),
     };
 
     this.data.transactions[idx] = updated;
@@ -406,7 +412,8 @@ class FinanceStore {
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const totalBalance = Math.max(0, allIncome - allExpenses);
+    // Total Balance can go negative if expenses exceed income
+    const totalBalance = allIncome - allExpenses;
 
     const periodTxs = this.filterByRange(rangeKey);
     const periodIncome = periodTxs
@@ -417,22 +424,48 @@ class FinanceStore {
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
+    // Calculate 30-day Monthly Income and Monthly Expenses
+    const now = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+
+    const monthlyIncomeRaw = this.data.transactions
+      .filter((t) => t.type === "income" && new Date(t.date) >= thirtyDaysAgo)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const monthlyExpensesRaw = this.data.transactions
+      .filter((t) => t.type === "expense" && new Date(t.date) >= thirtyDaysAgo)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const formatAmount = (val) => {
+      const isNeg = val < 0;
+      const absVal = Math.abs(val);
+      const formatted = absVal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return isNeg ? `-${curr.symbol}${formatted}` : `${curr.symbol}${formatted}`;
+    };
+
     const trendLabel = periodExpenses > 0 ? "+12.5% vs last period" : "No spend yet";
 
     return {
-      totalBalance: `${curr.symbol}${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      totalBalance: formatAmount(totalBalance),
       totalBalanceRaw: totalBalance,
-      income: `${curr.symbol}${periodIncome.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      expenses: `${curr.symbol}${periodExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      isNegativeBalance: totalBalance < 0,
+      income: formatAmount(periodIncome),
+      expenses: formatAmount(periodExpenses),
       periodExpensesRaw: periodExpenses,
       periodIncomeRaw: periodIncome,
+      monthlyIncome: formatAmount(monthlyIncomeRaw),
+      monthlyIncomeRaw,
+      monthlyExpenses: formatAmount(monthlyExpensesRaw),
+      monthlyExpensesRaw,
       trendLabel,
       vaultId: this.data.account.vaultId,
       currency: curr,
       currencyCode: curr.code,
       currencySymbol: curr.symbol,
-      isActivated: this.data.account.isActivated && totalBalance > 0,
+      isActivated: this.data.account.isActivated && this.data.transactions.length > 0,
     };
+
   }
 
   getCategoryBreakdown(rangeKey = "1 week") {
@@ -517,15 +550,16 @@ class FinanceStore {
     };
   }
 
-  getWeekdayBarData() {
+  getWeekdayBarData(selectedDayIndex = null) {
+    const curr = this.getCurrency();
     const daysData = [
-      { day: "M", total: 0, amountRaw: 0 },
-      { day: "T", total: 0, amountRaw: 0 },
-      { day: "W", total: 0, amountRaw: 0 },
-      { day: "T", total: 0, amountRaw: 0 },
-      { day: "F", total: 0, amountRaw: 0 },
-      { day: "S", total: 0, amountRaw: 0 },
-      { day: "S", total: 0, amountRaw: 0 },
+      { day: "M", total: 0, amountRaw: 0, categoryBreakdown: {} },
+      { day: "T", total: 0, amountRaw: 0, categoryBreakdown: {} },
+      { day: "W", total: 0, amountRaw: 0, categoryBreakdown: {} },
+      { day: "T", total: 0, amountRaw: 0, categoryBreakdown: {} },
+      { day: "F", total: 0, amountRaw: 0, categoryBreakdown: {} },
+      { day: "S", total: 0, amountRaw: 0, categoryBreakdown: {} },
+      { day: "S", total: 0, amountRaw: 0, categoryBreakdown: {} },
     ];
 
     const expenses = this.filterByRange("1 week").filter((t) => t.type === "expense");
@@ -535,40 +569,188 @@ class FinanceStore {
       const mappedIdx = dayIdx === 0 ? 6 : dayIdx - 1;
       if (daysData[mappedIdx]) {
         daysData[mappedIdx].amountRaw += t.amount;
+        const catName = t.category || "Other Expense";
+        const meta = CATEGORIES[catName] || CATEGORIES["Other Expense"];
+        const colorGroup = meta.indicator || "orange";
+        daysData[mappedIdx].categoryBreakdown[colorGroup] =
+          (daysData[mappedIdx].categoryBreakdown[colorGroup] || 0) + t.amount;
       }
     });
+
+    // Determine target active day (explicit index, or day with highest spend, or Friday 4)
+    let targetIdx = selectedDayIndex !== null && selectedDayIndex !== undefined ? selectedDayIndex : -1;
+    if (targetIdx < 0 || targetIdx > 6) {
+      let maxDayIdx = 4;
+      let maxDayVal = 0;
+      daysData.forEach((d, idx) => {
+        if (d.amountRaw > maxDayVal) {
+          maxDayVal = d.amountRaw;
+          maxDayIdx = idx;
+        }
+      });
+      targetIdx = maxDayIdx;
+    }
 
     const maxAmt = Math.max(...daysData.map((d) => d.amountRaw), 1);
 
-    daysData.forEach((d) => {
-      if (d.amountRaw > 0) {
-        d.total = Math.min(100, Math.max(20, Math.round((d.amountRaw / maxAmt) * 90)));
-        d.amount = `-$${d.amountRaw.toFixed(2)}`;
-        d.isHatched = true;
+    daysData.forEach((d, idx) => {
+      const isSelected = idx === targetIdx;
+      d.isHatched = !isSelected;
+      d.amount = `-${curr.symbol}${d.amountRaw.toFixed(2)}`;
+
+      if (isSelected) {
+        d.isStacked = true;
+
+        if (d.amountRaw > 0) {
+          // Real proportional bar height (75px to 140px based on volume)
+          const totalBarHeight = Math.min(140, Math.max(75, Math.round((d.amountRaw / maxAmt) * 115) + 25));
+          d.total = totalBarHeight;
+
+          const orangeAmt = d.categoryBreakdown["orange"] || 0;
+          const greenAmt = d.categoryBreakdown["green"] || 0;
+          const blueAmt = d.categoryBreakdown["blue"] || 0;
+
+          // Hatch cap gets 16px at the top
+          const hatchCapHeight = 16;
+          const remainingHeight = Math.max(20, totalBarHeight - hatchCapHeight);
+
+          // Calculate real pixel heights proportionally
+          const blueHeight = Math.round((blueAmt / d.amountRaw) * remainingHeight);
+          const greenHeight = Math.round((greenAmt / d.amountRaw) * remainingHeight);
+          const orangeHeight = Math.max(0, remainingHeight - blueHeight - greenHeight);
+
+          // Build dynamic segments with real values (ordered top to bottom)
+          const segs = [{ type: "hatch-cap", height: hatchCapHeight, label: "Top Cap" }];
+          if (blueHeight > 0) {
+            segs.push({ type: "blue", height: blueHeight, label: "Services & Transit", amount: blueAmt });
+          }
+          if (greenHeight > 0) {
+            segs.push({ type: "green", height: greenHeight, label: "Tech & Transfers", amount: greenAmt });
+          }
+          if (orangeHeight > 0) {
+            segs.push({ type: "orange", height: orangeHeight, label: "Shopping & Food", amount: orangeAmt });
+          }
+
+          d.segments = segs;
+        } else {
+          // Zero spend on this day
+          d.total = 22;
+          d.segments = [{ type: "hatch-cap", height: 22, label: "No Spend" }];
+        }
       } else {
-        d.total = 15;
-        d.amount = "$0.00";
-        d.isHatched = true;
+        // Non-selected hatched bar
+        d.total = d.amountRaw > 0
+          ? Math.min(100, Math.max(20, Math.round((d.amountRaw / maxAmt) * 85)))
+          : 18;
       }
     });
 
-    // Friday bar
-    const friday = daysData[4];
-    if (friday.amountRaw > 0) {
-      friday.isStacked = true;
-      friday.segments = [
-        { type: "orange", height: 48, label: "Shopping" },
-        { type: "green", height: 22, label: "Transfers" },
-        { type: "blue", height: 28, label: "Services" },
-        { type: "hatch", height: 16, label: "Other" },
-      ];
-    }
+    const activeDay = daysData[targetIdx];
 
     return {
-      selectedDayIndex: 4,
-      selectedAmount: friday.amount,
+      selectedDayIndex: targetIdx,
+      selectedAmount: activeDay.amount,
       days: daysData,
     };
+  }
+
+  // ==========================================
+  // RECURRING SUBSCRIPTIONS TRACKER
+  // ==========================================
+
+  getSubscriptionsSummary() {
+    const curr = this.getCurrency();
+    const recurringTxs = this.data.transactions.filter(
+      (t) => t.isRecurring && t.type === "expense"
+    );
+
+    let monthlyTotal = 0;
+    const items = recurringTxs.map((t) => {
+      let monthlyCost = t.amount;
+      if (t.billingCycle === "weekly") monthlyCost = t.amount * 4.33;
+      else if (t.billingCycle === "yearly") monthlyCost = t.amount / 12;
+      monthlyTotal += monthlyCost;
+
+      return {
+        id: t.id,
+        title: t.title,
+        category: t.category,
+        amountRaw: t.amount,
+        amountFormatted: `${curr.symbol}${t.amount.toFixed(2)}`,
+        monthlyCostRaw: monthlyCost,
+        monthlyCostFormatted: `${curr.symbol}${monthlyCost.toFixed(2)}`,
+        billingCycle: t.billingCycle || "monthly",
+        date: t.date,
+      };
+    });
+
+    return {
+      count: items.length,
+      monthlyTotalRaw: monthlyTotal,
+      monthlyTotalFormatted: `${curr.symbol}${monthlyTotal.toFixed(2)}`,
+      items,
+    };
+  }
+
+  // ==========================================
+  // EXPORT TO CSV
+  // ==========================================
+
+  exportToCsv() {
+    const curr = this.getCurrency();
+    const txs = this.getTransactions();
+    if (!txs || txs.length === 0) {
+      return { success: false, count: 0 };
+    }
+
+    const headers = [
+      "Transaction ID",
+      "Date",
+      "Title",
+      "Type",
+      "Category",
+      "Amount",
+      "Currency",
+      "Is Recurring",
+      "Billing Cycle",
+      "Notes",
+    ];
+
+    const escapeCsv = (str) => {
+      const val = str === undefined || str === null ? "" : String(str);
+      if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+        return `"${val.replace(/"/g, '""')}"`;
+      }
+      return val;
+    };
+
+    const rows = txs.map((t) => [
+      escapeCsv(t.id),
+      escapeCsv(t.date),
+      escapeCsv(t.title),
+      escapeCsv(t.type),
+      escapeCsv(t.category),
+      escapeCsv(t.amount.toFixed(2)),
+      escapeCsv(curr.code),
+      escapeCsv(t.isRecurring ? "Yes" : "No"),
+      escapeCsv(t.isRecurring ? t.billingCycle || "monthly" : "N/A"),
+      escapeCsv(t.notes || ""),
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    const todayStr = getIsoDate(0);
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `vault_transactions_${todayStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    return { success: true, count: txs.length };
   }
 }
 

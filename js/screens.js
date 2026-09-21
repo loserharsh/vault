@@ -47,6 +47,14 @@ export function renderHomeScreen(containerEl, switchTabFn, onAddTxFn, onEditTxFn
         </button>
 
         <div style="display: flex; align-items: center; gap: 8px;">
+          <!-- Scan Receipt Button -->
+          <button class="header-btn" id="btn-header-scan-receipt" title="Scan Receipt with Camera" style="background: #FFFFFF; box-shadow: var(--shadow-sm);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </button>
+
           <!-- Quick Add Transaction Header Icon -->
           <button class="header-btn" id="btn-header-add-tx" title="Add Transaction" style="background: #FFFFFF; box-shadow: var(--shadow-sm);">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
@@ -64,48 +72,8 @@ export function renderHomeScreen(containerEl, switchTabFn, onAddTxFn, onEditTxFn
       <!-- Balance Section -->
       <div class="dashboard-balance-section">
         <div class="dashboard-balance-label">Total balance</div>
-        <div class="dashboard-balance-amount" id="dash-total-balance">${metrics.totalBalance}</div>
+        <div class="dashboard-balance-amount ${metrics.isNegativeBalance ? "is-negative" : ""}" id="dash-total-balance">${metrics.totalBalance}</div>
       </div>
-
-      ${
-        metrics.totalBalanceRaw === 0
-          ? `
-          <!-- First-Time Welcome Banner -->
-          <div class="vault-activation-banner">
-            <div class="activation-banner-top">
-              <div class="activation-icon-box">💰</div>
-              <div>
-                <div class="activation-banner-title">Welcome to Your Vault ($0.00)</div>
-                <div class="activation-banner-desc">
-                  Your vault is ready. Make your first deposit to get started and fund your account.
-                </div>
-              </div>
-            </div>
-            <button class="btn-activate-deposit" id="btn-banner-deposit">
-              + Make First Deposit
-            </button>
-          </div>
-        `
-          : `
-          <!-- Income & Expenses Metric Pills -->
-          <div class="balance-breakdown-row">
-            <div class="metric-chip">
-              <div class="metric-chip-icon income">↑</div>
-              <div class="metric-chip-info">
-                <span class="metric-chip-label">Income</span>
-                <span class="metric-chip-amount">${metrics.income}</span>
-              </div>
-            </div>
-            <div class="metric-chip">
-              <div class="metric-chip-icon expense">↓</div>
-              <div class="metric-chip-info">
-                <span class="metric-chip-label">Expenses</span>
-                <span class="metric-chip-amount">${metrics.expenses}</span>
-              </div>
-            </div>
-          </div>
-        `
-      }
 
       <!-- Time Interval Switcher -->
       <div class="time-tabs" id="spending-time-tabs">
@@ -166,9 +134,10 @@ export function renderHomeScreen(containerEl, switchTabFn, onAddTxFn, onEditTxFn
               <line x1="5" y1="20" x2="19" y2="20" />
             </svg>
           </div>
-          <span class="action-label">Deposit</span>
+          <span class="action-label">Receive</span>
         </button>
 
+        <!-- Invest Action Card -->
         <button class="action-card-btn" id="btn-action-invest">
           <div class="action-icon" style="color: var(--color-success);">
             <svg viewBox="0 0 24 24">
@@ -180,14 +149,17 @@ export function renderHomeScreen(containerEl, switchTabFn, onAddTxFn, onEditTxFn
           <span class="action-label">Invest</span>
         </button>
 
-        <button class="action-card-btn" id="btn-action-analytics" style="background: #FFFFFF;">
-          <div class="action-icon" style="color: #9B59B6;">
+        <!-- Subscriptions Action Card -->
+        <button class="action-card-btn" id="btn-action-subscriptions" style="background: #FFFFFF;">
+          <div class="action-icon" style="color: #6366F1;">
             <svg viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="8" />
-              <path d="M12 2v10l7 4" />
+              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+              <path d="M16 21h5v-5" />
             </svg>
           </div>
-          <span class="action-label">Analytics</span>
+          <span class="action-label">Subscriptions</span>
         </button>
       </div>
 
@@ -214,6 +186,8 @@ export function renderHomeScreen(containerEl, switchTabFn, onAddTxFn, onEditTxFn
                   .map((tx) => {
                     const meta = CATEGORIES[tx.category] || CATEGORIES["Other Expense"];
                     const isIncome = tx.type === "income";
+                    const isRecurring = Boolean(tx.isRecurring);
+                    const hasReceipt = Boolean(tx.receiptPhoto);
                     return `
                     <div class="transaction-row" data-id="${tx.id}">
                       <div class="transaction-merchant">
@@ -221,7 +195,11 @@ export function renderHomeScreen(containerEl, switchTabFn, onAddTxFn, onEditTxFn
                           ${meta.icon}
                         </div>
                         <div class="merchant-info">
-                          <span class="merchant-name">${tx.title}</span>
+                          <span class="merchant-name">
+                            ${tx.title}
+                            ${hasReceipt ? `<span title="Receipt Scanned" style="font-size: 11px; margin-left: 4px;">🧾</span>` : ""}
+                            ${isRecurring ? `<span class="badge-recurring">🔁 ${tx.billingCycle || "Monthly"}</span>` : ""}
+                          </span>
                           <span class="merchant-category">${tx.category} • ${tx.date}</span>
                         </div>
                       </div>
@@ -280,6 +258,24 @@ export function renderHomeScreen(containerEl, switchTabFn, onAddTxFn, onEditTxFn
 
   containerEl.querySelector("#btn-empty-deposit")?.addEventListener("click", () => {
     if (typeof onOpenDepositFn === "function") onOpenDepositFn();
+  });
+
+  containerEl.querySelector("#btn-action-invest")?.addEventListener("click", () => {
+    if (typeof switchTabFn === "function") {
+      switchTabFn("analytics");
+    }
+  });
+
+  containerEl.querySelector("#btn-action-subscriptions")?.addEventListener("click", () => {
+    if (typeof switchTabFn === "function") {
+      switchTabFn("analytics");
+      setTimeout(() => {
+        const subCard = document.querySelector(".subscriptions-summary-card");
+        if (subCard) {
+          subCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+    }
   });
 
   containerEl.querySelector("#btn-action-analytics")?.addEventListener("click", () => {
@@ -488,40 +484,66 @@ export function renderSidebarDrawer(
     <div class="drawer-nav-list">
       <div class="drawer-nav-item" data-go="home">
         <div class="drawer-nav-icon">🏠</div>
-        <span>Home Dashboard</span>
+        <div class="drawer-nav-text">
+          <span class="drawer-nav-title">Home Dashboard</span>
+        </div>
       </div>
 
-      <!-- Direct Deposit Link to New Page -->
-      <div class="drawer-nav-item highlight-deposit" data-go="deposit">
-        <div class="drawer-nav-icon" style="background: var(--color-primary); color: #fff;">💳</div>
-        <span>Deposit Funds</span>
+      <!-- Direct Deposit Link to Page -->
+      <div class="drawer-nav-item" data-go="deposit">
+        <div class="drawer-nav-icon">💳</div>
+        <div class="drawer-nav-text">
+          <span class="drawer-nav-title">Deposit Funds</span>
+        </div>
       </div>
 
       <div class="drawer-nav-item" data-go="analytics">
         <div class="drawer-nav-icon">📊</div>
-        <span>Analytics & Charts</span>
+        <div class="drawer-nav-text">
+          <span class="drawer-nav-title">Analytics & Charts</span>
+        </div>
       </div>
 
       <div class="drawer-nav-item" data-go="activity">
         <div class="drawer-nav-icon">📝</div>
-        <span>All Transactions</span>
-      </div>
-
-      <!-- Currency Switcher Option -->
-      <div class="drawer-nav-item" id="btn-drawer-currency" style="background: #F8F8F5; color: var(--color-dark); margin-top: 4px; cursor: pointer;">
-        <div class="drawer-nav-icon" style="background: #FFFFFF; font-size: 16px;">${curr.icon}</div>
-        <div style="display: flex; flex-direction: column;">
-          <span>Currency (${curr.symbol})</span>
-          <span style="font-size: 11px; color: var(--color-primary); font-weight: 700;">${curr.name}</span>
+        <div class="drawer-nav-text">
+          <span class="drawer-nav-title">All Transactions</span>
         </div>
       </div>
 
-      <!-- Option 2: Device Sync & Cloud Backup -->
-      <div class="drawer-nav-item" id="btn-drawer-sync" style="background: var(--color-secondary-soft); color: var(--color-dark); margin-top: 4px;">
-        <div class="drawer-nav-icon" style="background: #FFFFFF;">🔄</div>
-        <div style="display: flex; flex-direction: column;">
-          <span>Device Sync & Backup</span>
-          <span style="font-size: 11px; color: var(--color-slate); font-weight: 500;">Sync between phone & PC</span>
+      <!-- Currency Switcher Option -->
+      <div class="drawer-nav-item" id="btn-drawer-currency">
+        <div class="drawer-nav-icon">${curr.icon}</div>
+        <div class="drawer-nav-text">
+          <span class="drawer-nav-title">Currency (${curr.symbol})</span>
+          <span class="drawer-nav-subtitle">${curr.name}</span>
+        </div>
+      </div>
+
+      <!-- Scan Receipt OCR -->
+      <div class="drawer-nav-item" id="btn-drawer-scan-receipt">
+        <div class="drawer-nav-icon">📷</div>
+        <div class="drawer-nav-text">
+          <span class="drawer-nav-title">Scan Receipt (Camera OCR)</span>
+          <span class="drawer-nav-subtitle">Capture receipt & auto-fill</span>
+        </div>
+      </div>
+
+      <!-- Export to CSV -->
+      <div class="drawer-nav-item" id="btn-drawer-export-csv">
+        <div class="drawer-nav-icon">📥</div>
+        <div class="drawer-nav-text">
+          <span class="drawer-nav-title">Export Ledger (CSV)</span>
+          <span class="drawer-nav-subtitle">Download Excel spreadsheet</span>
+        </div>
+      </div>
+
+      <!-- Device Sync & Cloud Backup -->
+      <div class="drawer-nav-item" id="btn-drawer-sync">
+        <div class="drawer-nav-icon">🔄</div>
+        <div class="drawer-nav-text">
+          <span class="drawer-nav-title">Device Sync & Backup</span>
+          <span class="drawer-nav-subtitle">Sync between phone & PC</span>
         </div>
       </div>
     </div>
@@ -579,6 +601,7 @@ export function renderAnalyticsScreen(containerEl, onAddTxFn, onEditTxFn, onOpen
   const barData = store.getWeekdayBarData();
   const categories = store.getCategoryBreakdown(activeDashboardRange);
   const metrics = store.getMetrics(activeDashboardRange);
+  const subs = store.getSubscriptionsSummary();
 
   containerEl.innerHTML = `
     <div class="screen-transactions">
@@ -655,24 +678,78 @@ export function renderAnalyticsScreen(containerEl, onAddTxFn, onEditTxFn, onOpen
           .join("")}
       </div>
 
+      <!-- Recurring Subscriptions & Fixed Commitments Card -->
+      <div class="subscriptions-summary-card">
+        <div class="subscriptions-card-header">
+          <div class="subscriptions-card-title">
+            <span>🔁</span>
+            <span>Recurring Subscriptions (${subs.count})</span>
+          </div>
+          <div class="subscriptions-total-burn">
+            ${subs.monthlyTotalFormatted}<span style="font-size: 11px; color: var(--color-slate); font-weight: 500;"> /mo</span>
+          </div>
+        </div>
+        ${
+          subs.count > 0
+            ? `
+          <div class="subscription-list-items">
+            ${subs.items
+              .map(
+                (sub) => `
+              <div class="subscription-row-item">
+                <div class="sub-item-left">
+                  <span>${CATEGORIES[sub.category]?.icon || "🏷️"}</span>
+                  <div>
+                    <div class="sub-item-name">${sub.title}</div>
+                    <div class="sub-item-cycle">${sub.billingCycle.toUpperCase()} • ${sub.category}</div>
+                  </div>
+                </div>
+                <div class="sub-item-amount">${sub.amountFormatted}</div>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+        `
+            : `
+          <div style="font-size: 12px; color: var(--color-slate); padding: 4px 0;">
+            No active subscriptions yet. Turn on the <strong>Recurring</strong> switch when adding an expense!
+          </div>
+        `
+        }
+      </div>
+
       <!-- Income vs Expenses Summary Card -->
       <div class="app-card" style="margin-bottom: 24px;">
-        <div style="font-size: 13px; font-weight: 600; color: var(--color-slate); margin-bottom: 10px;">Income vs Expenses</div>
+        <div style="font-size: 13px; font-weight: 600; color: var(--color-slate); margin-bottom: 10px;">Income vs Expenses (Monthly)</div>
         <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-          <span style="font-size: 14px; font-weight: 700; color: var(--color-success);">Income: ${metrics.income}</span>
-          <span style="font-size: 14px; font-weight: 700; color: var(--color-primary);">Expenses: ${metrics.expenses}</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--color-success);">Income: ${metrics.monthlyIncome}</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--color-primary);">Expenses: ${metrics.monthlyExpenses}</span>
         </div>
-        <div class="category-progress-track" style="height: 10px; display: flex;">
-          <div style="height: 100%; width: 65%; background: var(--color-success); border-radius: 999px 0 0 999px;"></div>
-          <div style="height: 100%; width: 35%; background: var(--color-primary); border-radius: 0 999px 999px 0;"></div>
-        </div>
+        ${(() => {
+          const totalFlow = (metrics.monthlyIncomeRaw + metrics.monthlyExpensesRaw) || 1;
+          const incPct = Math.round((metrics.monthlyIncomeRaw / totalFlow) * 100);
+          const expPct = 100 - incPct;
+          return `
+            <div class="category-progress-track" style="height: 10px; display: flex;">
+              <div style="height: 100%; width: ${incPct}%; background: var(--color-success); border-radius: 999px 0 0 999px;"></div>
+              <div style="height: 100%; width: ${expPct}%; background: var(--color-primary); border-radius: 0 999px 999px 0;"></div>
+            </div>
+          `;
+        })()}
       </div>
     </div>
   `;
 
-  // Render Bar Chart
+  // Render Bar Chart with real dynamic calculation on selection
   const barStage = containerEl.querySelector("#analytics-bar-stage");
-  renderHatchedBarChart(barStage, barData);
+  const renderBarWithIndex = (selectedIdx) => {
+    const data = store.getWeekdayBarData(selectedIdx);
+    renderHatchedBarChart(barStage, data, (item, clickedIdx) => {
+      renderBarWithIndex(clickedIdx);
+    });
+  };
+  renderBarWithIndex(barData.selectedDayIndex);
 
   containerEl.querySelector("#btn-analytics-menu")?.addEventListener("click", () => {
     if (typeof onOpenMenuFn === "function") onOpenMenuFn();
@@ -717,12 +794,22 @@ export function renderActivityScreen(containerEl, onAddTxFn, onEditTxFn, onOpenM
           </svg>
         </button>
         <div class="header-title">Transactions</div>
-        <button class="header-btn" id="btn-activity-add-tx" style="background: #FFFFFF; box-shadow: var(--shadow-sm);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <!-- Scan Receipt Button -->
+          <button class="header-btn" id="btn-header-scan-receipt" title="Scan Receipt with Camera" style="background: #FFFFFF; box-shadow: var(--shadow-sm);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </button>
+
+          <button class="header-btn" id="btn-activity-add-tx" style="background: #FFFFFF; box-shadow: var(--shadow-sm);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- Real-time Search Input Bar -->
@@ -734,11 +821,22 @@ export function renderActivityScreen(containerEl, onAddTxFn, onEditTxFn, onOpenM
         <input type="text" id="tx-search-input" placeholder="Search by merchant, category, amount..." value="${activitySearchQuery}" />
       </div>
 
-      <!-- Filter Pills -->
-      <div class="filter-pills-row" id="tx-filter-pills">
-        <button class="filter-pill-btn ${activityTypeFilter === "all" ? "active" : ""}" data-filter="all">All</button>
-        <button class="filter-pill-btn ${activityTypeFilter === "expense" ? "active" : ""}" data-filter="expense">Expenses</button>
-        <button class="filter-pill-btn ${activityTypeFilter === "income" ? "active" : ""}" data-filter="income">Income</button>
+      <!-- Filter Pills & Export CSV Action Bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px;">
+        <div class="filter-pills-row" id="tx-filter-pills" style="margin-bottom: 0;">
+          <button class="filter-pill-btn ${activityTypeFilter === "all" ? "active" : ""}" data-filter="all">All</button>
+          <button class="filter-pill-btn ${activityTypeFilter === "expense" ? "active" : ""}" data-filter="expense">Expenses</button>
+          <button class="filter-pill-btn ${activityTypeFilter === "income" ? "active" : ""}" data-filter="income">Income</button>
+        </div>
+
+        <button type="button" class="btn-export-csv" id="btn-export-csv-activity" title="Download CSV Spreadsheet">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Export CSV</span>
+        </button>
       </div>
 
       <!-- Transaction Feed List -->
@@ -753,6 +851,8 @@ export function renderActivityScreen(containerEl, onAddTxFn, onEditTxFn, onOpenM
                   .map((tx) => {
                     const meta = CATEGORIES[tx.category] || CATEGORIES["Other Expense"];
                     const isIncome = tx.type === "income";
+                    const isRecurring = Boolean(tx.isRecurring);
+                    const hasReceipt = Boolean(tx.receiptPhoto);
                     return `
                     <div class="transaction-row" data-id="${tx.id}">
                       <div class="transaction-merchant">
@@ -760,7 +860,11 @@ export function renderActivityScreen(containerEl, onAddTxFn, onEditTxFn, onOpenM
                           ${meta.icon}
                         </div>
                         <div class="merchant-info">
-                          <span class="merchant-name">${tx.title}</span>
+                          <span class="merchant-name">
+                            ${tx.title}
+                            ${hasReceipt ? `<span title="Receipt Scanned" style="font-size: 11px; margin-left: 4px;">🧾</span>` : ""}
+                            ${isRecurring ? `<span class="badge-recurring">🔁 ${tx.billingCycle || "Monthly"}</span>` : ""}
+                          </span>
                           <span class="merchant-category">${tx.category} • ${tx.date}</span>
                         </div>
                       </div>

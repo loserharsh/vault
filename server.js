@@ -1,6 +1,11 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
 const ROOT = path.resolve(__dirname);
@@ -53,8 +58,6 @@ const server = http.createServer((req, res) => {
   });
 });
 
-const os = require('os');
-
 function getLocalIp() {
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
@@ -67,10 +70,27 @@ function getLocalIp() {
   return 'localhost';
 }
 
-server.listen(PORT, '0.0.0.0', () => {
-  const localIp = getLocalIp();
-  console.log('\n\x1b[32m✔ Vault Mobile App Server is running!\x1b[0m');
-  console.log(`\x1b[1m📱 On your phone (same Wi-Fi):\x1b[0m  \x1b[36mhttp://${localIp}:${PORT}\x1b[0m`);
-  console.log(`\x1b[1m💻 On your computer:\x1b[0m           \x1b[36mhttp://localhost:${PORT}\x1b[0m`);
-  console.log('\n\x1b[90mTip: On iPhone Safari tap Share -> "Add to Home Screen", or on Android Chrome tap "Install App" to use it full-screen like a native app.\x1b[0m\n');
+let activePort = parseInt(PORT, 10);
+
+function startServer(port) {
+  server.listen(port, () => {
+    const localIp = getLocalIp();
+    console.log('\n\x1b[32m✔ Vault Mobile App Server is running!\x1b[0m');
+    console.log(`\x1b[1m📱 On your phone (same Wi-Fi):\x1b[0m  \x1b[36mhttp://${localIp}:${port}\x1b[0m`);
+    console.log(`\x1b[1m💻 On your computer:\x1b[0m           \x1b[36mhttp://localhost:${port}\x1b[0m`);
+    console.log('\n\x1b[90mTip: On iPhone Safari tap Share -> "Add to Home Screen", or on Android Chrome tap "Install App" to use it full-screen like a native app.\x1b[0m\n');
+  });
+}
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`\x1b[33m⚠️ Port ${activePort} is busy. Trying port ${activePort + 1}...\x1b[0m`);
+    activePort++;
+    startServer(activePort);
+  } else {
+    console.error('Server error:', err);
+  }
 });
+
+startServer(activePort);
+

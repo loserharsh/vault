@@ -348,6 +348,7 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--color-dark);
+  background: transparent;
   transition: all var(--transition-fast);
   cursor: pointer;
 }
@@ -356,18 +357,27 @@
   background: #F5F5F2;
 }
 
-.drawer-nav-item.highlight-deposit {
-  background: var(--color-primary-light);
-  color: var(--color-primary);
+.drawer-nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.drawer-nav-item.highlight-deposit:hover {
-  background: #ffd9ce;
+.drawer-nav-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.drawer-nav-subtitle {
+  font-size: 11px;
+  color: var(--color-slate);
+  font-weight: 500;
 }
 
 .drawer-nav-icon {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
   background: #FFFFFF;
   box-shadow: var(--shadow-sm);

@@ -1209,4 +1209,527 @@
   color: var(--color-primary);
 }
 
+/* =======================================================
+   ATTACHMENT POPUP MENU (Camera / Photos / Files)
+   ======================================================= */
+.attachment-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1200;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.attachment-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.attachment-sheet {
+  position: fixed;
+  bottom: 24px;
+  left: 20px;
+  background: #1F2024;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  z-index: 1210;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 190px;
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.attachment-backdrop.open .attachment-sheet {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+.attachment-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: transparent;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.attachment-item-btn:hover,
+.attachment-item-btn:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.attachment-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+/* =======================================================
+   CAMERA VIEWFINDER MODAL (Matching Screenshot)
+   ======================================================= */
+.camera-viewfinder-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.camera-viewfinder-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Top Bar */
+.camera-top-bar {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #FFFFFF;
+  z-index: 10;
+}
+
+.camera-title-badge {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.camera-top-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.camera-top-btn:active {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Rounded Viewfinder Frame (Matching Screenshot 1) */
+.camera-viewfinder-viewport {
+  flex: 1;
+  position: relative;
+  margin: 0 0;
+  border-radius: 28px 28px 0 0;
+  overflow: hidden;
+  background: #111114;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-video-stream {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Laser Scan Animation Line */
+.camera-scan-laser {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #2ECC71, #F04E23, #2ECC71, transparent);
+  box-shadow: 0 0 16px rgba(46, 204, 113, 0.9);
+  display: none;
+  z-index: 20;
+}
+
+.camera-viewfinder-viewport.scanning .camera-scan-laser {
+  display: block;
+  animation: scanLaserMove 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes scanLaserMove {
+  0% { top: 4%; }
+  100% { top: 96%; }
+}
+
+.camera-scanning-status-pill {
+  position: absolute;
+  bottom: 24px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 24px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  z-index: 30;
+  backdrop-filter: blur(10px);
+}
+
+.camera-viewfinder-viewport.scanning .camera-scanning-status-pill {
+  display: flex;
+}
+
+/* Bottom Controls Bar (Matching Screenshot 1) */
+.camera-controls-bar {
+  height: 120px;
+  padding: 0 32px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #000000;
+  z-index: 10;
+}
+
+.camera-circle-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1C1C1E;
+  color: #FFFFFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.camera-circle-btn:active {
+  transform: scale(0.92);
+  background: #2C2C2E;
+}
+
+/* Large Solid White Shutter Button */
+.camera-shutter-btn {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 4px solid #000000;
+  outline: 3px solid #FFFFFF;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-shutter-btn:active {
+  transform: scale(0.88);
+  background: #E0E0E0;
+}
+
+/* Receipt Proof Preview in Modal */
+.receipt-preview-banner {
+  background: #F5F5F2;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.receipt-preview-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #FFF;
+}
+
+.receipt-preview-info {
+  flex: 1;
+}
+
+.receipt-preview-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.receipt-preview-sub {
+  font-size: 11px;
+  color: var(--color-slate);
+}
+
+/* =======================================================
+   RECURRING SUBSCRIPTIONS TOGGLE & CARD
+   ======================================================= */
+.recurring-toggle-box {
+  background: #F9F9FB;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recurring-toggle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recurring-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+/* iOS Style Switch */
+.switch-input-wrap {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch-input-wrap input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #D1D1D6;
+  transition: 0.25s;
+  border-radius: 24px;
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.switch-input-wrap input:checked + .switch-slider {
+  background-color: var(--color-primary);
+}
+
+.switch-input-wrap input:checked + .switch-slider:before {
+  transform: translateX(20px);
+}
+
+/* Cycle Segmented Control */
+.cycle-pills-row {
+  display: none;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.cycle-pills-row.show {
+  display: grid;
+}
+
+.cycle-pill-btn {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cycle-pill-btn.active {
+  background: var(--color-dark);
+  color: #FFFFFF;
+  border-color: var(--color-dark);
+}
+
+/* Recurring Badge on Transaction Row */
+.badge-recurring {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(240, 78, 35, 0.1);
+  color: var(--color-primary);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: 6px;
+}
+
+/* Subscriptions Card in Analytics Screen */
+.subscriptions-summary-card {
+  background: #FFFFFF;
+  border: 1.5px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+
+.subscriptions-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.subscriptions-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.subscriptions-total-burn {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.subscription-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subscription-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #F9F9FB;
+  border-radius: 12px;
+}
+
+.sub-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sub-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.sub-item-cycle {
+  font-size: 11px;
+  color: var(--color-slate);
+}
+
+.sub-item-amount {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+/* =======================================================
+   EXPORT CSV BUTTON
+   ======================================================= */
+.btn-export-csv {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  color: var(--color-dark);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.btn-export-csv:hover {
+  background: #F6F6F9;
+  border-color: rgba(0, 0, 0, 0.14);
+}
+
+.btn-export-csv:active {
+  transform: scale(0.96);
+}
+
+
 

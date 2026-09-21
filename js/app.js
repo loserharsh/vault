@@ -185,20 +185,17 @@ document.addEventListener("DOMContentLoaded", () => {
   refreshActiveScreen();
   switchTab("home");
 
-  // Re-adjust spline chart pin on resize
-  window.addEventListener("resize", () => {
-    if (currentTab === "home") {
-      const homeContainer = document.querySelector("#screen-home");
-      if (homeContainer) {
-        renderHomeScreen(
-          homeContainer,
-          switchTab,
-          () => openTransactionModal(null),
-          (txId) => openTransactionModal(txId),
-          () => switchTab("deposit"),
-          openSidebar
-        );
-      }
-    }
-  });
+  // Register Offline Service Worker (100% Offline PWA)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("./sw.js")
+        .then((reg) => {
+          console.log("Vault Service Worker registered:", reg.scope);
+        })
+        .catch((err) => {
+          console.warn("Service Worker registration skipped or failed:", err);
+        });
+    });
+  }
 });

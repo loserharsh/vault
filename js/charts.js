@@ -106,20 +106,21 @@ export function renderHatchedBarChart(containerElement, barData, onSelect) {
       ? `<div class="bar-tooltip-pill">${item.amount || barData.selectedAmount}</div>`
       : "";
 
-    if (item.isStacked && item.segments) {
-      // Stacked Friday bar with colorful layers & hatched cap
+    if (item.isStacked && Array.isArray(item.segments) && item.segments.length > 0) {
+      const segmentsHtml = item.segments
+        .filter((seg) => seg.height > 0)
+        .map((seg) => `<div class="stacked-segment segment-${seg.type}" style="height: ${seg.height}px;"></div>`)
+        .join("");
+
       barTrackContent = `
-        <div class="chart-bar-track" style="height: 125px;">
+        <div class="chart-bar-track" style="height: ${item.total || 120}px;">
           ${tooltipHtml}
-          <div class="stacked-segment segment-hatch-cap"></div>
-          <div class="stacked-segment segment-blue"></div>
-          <div class="stacked-segment segment-green"></div>
-          <div class="stacked-segment segment-orange"></div>
+          ${segmentsHtml}
         </div>
       `;
     } else {
       // Default single hatched bar
-      const heightPercent = Math.max(28, item.total);
+      const heightPercent = Math.max(18, item.total || 18);
       barTrackContent = `
         <div class="chart-bar-track" style="height: ${heightPercent}px;">
           ${tooltipHtml}
@@ -135,8 +136,6 @@ export function renderHatchedBarChart(containerElement, barData, onSelect) {
 
     // Click handler to select this bar
     col.addEventListener("click", () => {
-      barData.selectedDayIndex = index;
-      renderHatchedBarChart(containerElement, barData, onSelect);
       if (typeof onSelect === "function") {
         onSelect(item, index);
       }
